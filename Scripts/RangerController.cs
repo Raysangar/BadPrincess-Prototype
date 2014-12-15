@@ -42,8 +42,8 @@ public class RangerController : MonoBehaviour {
                 if (!animation.IsPlaying("walk"))
                     animation.Play("walk");
 
-                if (transform.position != targetpos
-                    transform.position = Vector3.MoveTowards(transform.position, targetpos, speed * Time.deltaTime)
+                if (transform.position != targetpos)
+                    transform.position = Vector3.MoveTowards(transform.position, targetpos, speed * Time.deltaTime);
                 else
                     currentState = State.IDLE;
 
