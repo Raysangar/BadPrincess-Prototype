@@ -37,4 +37,9 @@ public class LoggingManager : MonoBehaviour {
         }
         return unitLog;
     }
+
+    public void addMessage(LoggingMessage message)
+    {
+        log.Add(message);
+    }
 }

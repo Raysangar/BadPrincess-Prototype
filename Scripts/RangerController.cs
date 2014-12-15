@@ -15,8 +15,11 @@ public class RangerController : MonoBehaviour {
     private enum State { IDLE, MOVING, CHASING, ATTACKING, TRAP }
     private State currentState;
 
+    private LoggingManager loggingManager;
+
 	// Use this for initialization
 	void Start () {
+        loggingManager = GameObject.Find("LoggingManager").GetComponent<LoggingManager>();
         currentState = State.IDLE;
         distance = 0;
         timer = 0.75;
@@ -39,8 +42,8 @@ public class RangerController : MonoBehaviour {
                 if (!animation.IsPlaying("walk"))
                     animation.Play("walk");
 
-                if (transform.position != targetpos)
-                    transform.position = Vector3.MoveTowards(transform.position, targetpos, speed * Time.deltaTime);
+                if (transform.position != targetpos
+                    transform.position = Vector3.MoveTowards(transform.position, targetpos, speed * Time.deltaTime)
                 else
                     currentState = State.IDLE;
 
@@ -81,7 +84,7 @@ public class RangerController : MonoBehaviour {
                     animation.PlayQueued("weapons_get", QueueMode.PlayNow);
                     animation.PlayQueued("attack3", QueueMode.CompleteOthers);
                     */
-                    Debug.Log("Hiiiiyaaaaa");
+                    sendAttackMessage(target);
                 }
 
                 break;
@@ -90,6 +93,7 @@ public class RangerController : MonoBehaviour {
                 timer -= Time.deltaTime;
                 if (timer < 0)
                 {
+                    sendTrapMessage();
                     GameObject t = Instantiate(trap, new Vector3(transform.position.x, transform.position.y - 75, transform.position.z + 100), Quaternion.identity) as GameObject;
                     animation.Stop("remove_weapons");
                     currentState = State.IDLE;
@@ -115,10 +119,12 @@ public class RangerController : MonoBehaviour {
         {
             currentState = State.CHASING;
             target = go;
+            sendChasingMessage(go);
         }
         else
         {
             currentState = State.MOVING;
+            sendMovingMessage(targetpos);
         }
         
     }
@@ -136,5 +142,28 @@ public class RangerController : MonoBehaviour {
         transform.LookAt(new Vector3(pos.x, transform.position.y, pos.z));
         transform.position = Vector3.MoveTowards(transform.position, pos, speed * Time.deltaTime);
         targetpos = pos;
+    }
+
+    private void sendMovingMessage(Vector3 targetPosition)
+    {
+        string message = "Moving to " + targetPosition.ToString();
+        loggingManager.addMessage(new LoggingMessage(Type.COARSE, message, gameObject.name));
+    }
+
+    private void sendChasingMessage(GameObject target)
+    {
+        string message = "Chasing enemy " + target.name;
+        loggingManager.addMessage(new LoggingMessage(Type.COARSE, message, gameObject.name));
+    }
+
+    private void sendTrapMessage()
+    {
+        loggingManager.addMessage(new LoggingMessage(Type.COARSE, "Creating trap", gameObject.name));
+    }
+
+    private void sendAttackMessage(GameObject target)
+    {
+        string message = "Attacking enemy " + target.name;
+        loggingManager.addMessage(new LoggingMessage(Type.COARSE, message, gameObject.name));
     }
 }
